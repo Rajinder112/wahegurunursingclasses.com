@@ -1,0 +1,57 @@
+/* Base styles */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+header {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Footer */
+footer {
+  font-size: 0.9rem;
+}
+
+/* Forms */
+input, textarea {
+  outline: none;
+  font-family: inherit;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Counter animation (optional) */
+.counter {
+  transition: all 0.4s ease-in-out;
+}
+
+/* Gallery styles */
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Responsive video background fix */
+video {
+  object-fit: cover;
+}
+
+/* Smooth hover scale */
+.hover\\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive Fixes */
+@media (max-width: 768px) {
+  .carousel-image {
+    height: 250px;
+  }
+}
