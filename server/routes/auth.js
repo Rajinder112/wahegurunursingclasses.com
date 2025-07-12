@@ -1,41 +1,53 @@
 const express = require('express');
-const { body } = require('express-validator');
-const authController = require('../controllers/authController');
-const { loginRateLimit } = require('../middleware/auth');
-
 const router = express.Router();
 
-// Register
-router.post(
-  '/register',
-  [
-    body('firstName').isString().isLength({ min: 2, max: 50 }).trim().escape(),
-    body('lastName').isString().isLength({ min: 2, max: 50 }).trim().escape(),
-    body('email').isEmail().normalizeEmail(),
-    body('password').isString().isLength({ min: 8 }),
-    body('phone').isString().isLength({ min: 7, max: 16 }).trim().escape()
-  ],
-  authController.register
-);
+// Simple status endpoint
+router.get('/status', (req, res) => {
+  res.json({
+    status: 'Authentication service is running',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Login
-router.post(
-  '/login',
-  loginRateLimit,
-  [
-    body('email').isEmail().normalizeEmail(),
-    body('password').isString().isLength({ min: 8 })
-  ],
-  authController.login
-);
+// Placeholder endpoints (will be implemented when database is connected)
+router.post('/register', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Registration service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Logout
-router.post('/logout', authController.logout);
+router.post('/login', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Login service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Refresh token
-router.post('/refresh', authController.refresh);
+router.post('/logout', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Logout service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Email verification (stub)
-router.get('/verify-email', authController.verifyEmail);
+router.post('/refresh', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Token refresh service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
+
+router.get('/verify-email', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Email verification service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
 
 module.exports = router; 

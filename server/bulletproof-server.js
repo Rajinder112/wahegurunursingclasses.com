@@ -12,7 +12,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    message: 'Server is running successfully',
+    message: 'Bulletproof server is running successfully',
     environment: process.env.NODE_ENV || 'development'
   });
 });
@@ -72,10 +72,10 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+  console.log(`🚀 Bulletproof server running on http://${HOST}:${PORT}`);
   console.log(`📁 Serving static files from: ${path.join(__dirname, '../public')}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`✅ Server started successfully!`);
 });
 
-module.exports = app;
+module.exports = app; 

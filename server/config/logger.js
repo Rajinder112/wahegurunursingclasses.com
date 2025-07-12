@@ -2,10 +2,16 @@ const winston = require('winston');
 const path = require('path');
 const fs = require('fs');
 
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, '../../logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+// Create logs directory if it doesn't exist and we're not in production
+let logsDir;
+try {
+  logsDir = path.join(__dirname, '../../logs');
+  if (!fs.existsSync(logsDir) && process.env.NODE_ENV !== 'production') {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+} catch (error) {
+  console.warn('Could not create logs directory:', error.message);
+  logsDir = null;
 }
 
 // Define log format
@@ -27,75 +33,85 @@ const logFormat = winston.format.combine(
   })
 );
 
+// Create transports array
+const transports = [];
+
+// Add file transports only if logs directory exists and we're not in production
+if (logsDir && process.env.NODE_ENV !== 'production') {
+  try {
+    transports.push(
+      // Write all logs with level 'error' and below to error.log
+      new winston.transports.File({
+        filename: path.join(logsDir, 'error.log'),
+        level: 'error',
+        maxsize: 5242880, // 5MB
+        maxFiles: 5,
+        tailable: true
+      }),
+      // Write all logs with level 'info' and below to combined.log
+      new winston.transports.File({
+        filename: path.join(logsDir, 'combined.log'),
+        maxsize: 5242880, // 5MB
+        maxFiles: 5,
+        tailable: true
+      }),
+      // Write security-related logs to security.log
+      new winston.transports.File({
+        filename: path.join(logsDir, 'security.log'),
+        level: 'warn',
+        maxsize: 5242880, // 5MB
+        maxFiles: 10,
+        tailable: true,
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.json()
+        )
+      })
+    );
+  } catch (error) {
+    console.warn('Could not create file transports:', error.message);
+  }
+}
+
+// Always add console transport
+transports.push(new winston.transports.Console({
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.simple(),
+    winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
+      let log = `${timestamp} [${level}]: ${message}`;
+      if (stack) {
+        log += `\n${stack}`;
+      }
+      if (Object.keys(meta).length > 0) {
+        log += `\n${JSON.stringify(meta, null, 2)}`;
+      }
+      return log;
+    })
+  )
+}));
+
 // Create logger instance
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: logFormat,
   defaultMeta: { service: 'waheguru-nursing-api' },
-  transports: [
-    // Write all logs with level 'error' and below to error.log
-    new winston.transports.File({
-      filename: path.join(logsDir, 'error.log'),
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      tailable: true
-    }),
-    // Write all logs with level 'info' and below to combined.log
-    new winston.transports.File({
-      filename: path.join(logsDir, 'combined.log'),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      tailable: true
-    }),
-    // Write security-related logs to security.log
-    new winston.transports.File({
-      filename: path.join(logsDir, 'security.log'),
-      level: 'warn',
-      maxsize: 5242880, // 5MB
-      maxFiles: 10,
-      tailable: true,
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      )
-    })
-  ],
-  exceptionHandlers: [
+  transports: transports,
+  exceptionHandlers: process.env.NODE_ENV !== 'production' && logsDir ? [
     new winston.transports.File({
       filename: path.join(logsDir, 'exceptions.log'),
       maxsize: 5242880, // 5MB
       maxFiles: 5
     })
-  ],
-  rejectionHandlers: [
+  ] : [],
+  rejectionHandlers: process.env.NODE_ENV !== 'production' && logsDir ? [
     new winston.transports.File({
       filename: path.join(logsDir, 'rejections.log'),
       maxsize: 5242880, // 5MB
       maxFiles: 5
     })
-  ]
+  ] : []
 });
-
-// If we're not in production, log to the console as well
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.simple(),
-      winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
-        let log = `${timestamp} [${level}]: ${message}`;
-        if (stack) {
-          log += `\n${stack}`;
-        }
-        if (Object.keys(meta).length > 0) {
-          log += `\n${JSON.stringify(meta, null, 2)}`;
-        }
-        return log;
-      })
-    )
-  }));
-}
 
 // Security logging functions
 logger.security = {

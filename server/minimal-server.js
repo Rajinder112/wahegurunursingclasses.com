@@ -12,17 +12,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    message: 'Server is running successfully',
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// API status
-app.get('/api/status', (req, res) => {
-  res.json({
-    status: 'API is available',
-    timestamp: new Date().toISOString(),
-    message: 'Server is running in static mode'
+    message: 'Minimal server is running'
   });
 });
 
@@ -54,10 +44,7 @@ app.get('/contact', (req, res) => {
 // Simple error handling
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({ 
-    error: 'Internal Server Error',
-    message: 'Something went wrong'
-  });
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // 404 handler
@@ -72,10 +59,12 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+  console.log(`🚀 Minimal server running on http://${HOST}:${PORT}`);
   console.log(`📁 Serving static files from: ${path.join(__dirname, '../public')}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`✅ Server started successfully!`);
+  console.log(`🔧 Available environment variables:`, Object.keys(process.env).filter(key => 
+    key.includes('MONGODB') || key.includes('JWT') || key.includes('SESSION') || key.includes('COOKIE')
+  ));
 });
 
-module.exports = app;
+module.exports = app; 

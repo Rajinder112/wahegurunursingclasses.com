@@ -1,19 +1,53 @@
 const express = require('express');
 const router = express.Router();
-const enrollmentController = require('../controllers/enrollmentController');
-const auth = require('../middleware/auth');
 
-// Public routes
-router.get('/', enrollmentController.getAllEnrollments);
-router.get('/:id', enrollmentController.getEnrollmentById);
+// Simple status endpoint
+router.get('/status', (req, res) => {
+  res.json({
+    status: 'Enrollment service is running',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Protected routes (require authentication)
-router.post('/', auth, enrollmentController.createEnrollment);
-router.put('/:id', auth, enrollmentController.updateEnrollment);
-router.delete('/:id', auth, enrollmentController.deleteEnrollment);
+// Placeholder endpoints
+router.get('/', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Enrollment service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Admin routes
-router.get('/admin/all', auth, enrollmentController.getAllEnrollmentsAdmin);
-router.put('/admin/:id/status', auth, enrollmentController.updateEnrollmentStatus);
+router.get('/:id', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Enrollment service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
+
+router.post('/', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Enrollment service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
+
+router.put('/:id', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Enrollment service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
+
+router.delete('/:id', (req, res) => {
+  res.status(503).json({
+    error: 'Service temporarily unavailable',
+    message: 'Enrollment service requires database connection',
+    timestamp: new Date().toISOString()
+  });
+});
 
 module.exports = router; 

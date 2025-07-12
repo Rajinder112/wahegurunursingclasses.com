@@ -52,18 +52,23 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  // Log error
-  logger.error('Error occurred', {
-    error: err.message,
-    stack: err.stack,
-    url: req.originalUrl,
-    method: req.method,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    body: req.body,
-    params: req.params,
-    query: req.query
-  });
+  // Log error safely
+  try {
+    logger.error('Error occurred', {
+      error: err.message,
+      stack: err.stack,
+      url: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      body: req.body,
+      params: req.params,
+      query: req.query
+    });
+  } catch (logError) {
+    console.error('Error logging failed:', logError.message);
+    console.error('Original error:', err.message);
+  }
 
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {
@@ -107,12 +112,16 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Security logging for suspicious errors
-  if (err.statusCode === 400 || err.statusCode === 401 || err.statusCode === 403) {
-    logger.security.suspiciousActivity(req.ip, 'ERROR_RESPONSE', {
-      statusCode: err.statusCode,
-      message: err.message,
-      url: req.originalUrl
-    });
+  try {
+    if (err.statusCode === 400 || err.statusCode === 401 || err.statusCode === 403) {
+      logger.security.suspiciousActivity(req.ip, 'ERROR_RESPONSE', {
+        statusCode: err.statusCode,
+        message: err.message,
+        url: req.originalUrl
+      });
+    }
+  } catch (securityLogError) {
+    console.error('Security logging failed:', securityLogError.message);
   }
 
   // Development error response
