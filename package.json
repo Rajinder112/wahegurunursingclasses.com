@@ -1,7 +1,7 @@
 {
-  "name": "wnc-server",
+  "name": "wnc-static-server",
   "version": "1.0.0",
-  "description": "Production-ready Express server for Render deployment.",
+  "description": "Express server for static site with www redirect and health check.",
   "main": "server/app.js",
   "scripts": {
     "start": "node server/app.js"
@@ -13,4 +13,4 @@
   "engines": {
     "node": ">=18.0.0"
   }
-} 
+}
