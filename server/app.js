@@ -7,8 +7,14 @@ const app = express();
 app.use((req, res, next) => {
   const host = req.headers.host;
   const isProduction = process.env.NODE_ENV === 'production';
-  if (isProduction && host === 'wahegurunursingclasses.com') {
-    return res.redirect(301, 'https://www.wahegurunursingclasses.com' + req.originalUrl);
+  const isLocalhost = host && (host.startsWith('localhost') || host.startsWith('127.0.0.1'));
+  if (
+    isProduction &&
+    !isLocalhost &&
+    host === 'wahegurunursingclasses.com'
+  ) {
+    const fullUrl = 'https://www.wahegurunursingclasses.com' + req.originalUrl;
+    return res.redirect(301, fullUrl);
   }
   next();
 });

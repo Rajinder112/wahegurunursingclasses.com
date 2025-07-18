@@ -4,9 +4,7 @@
   "description": "Secure online nursing education platform",
   "main": "test-server.js",
   "scripts": {
-    "start": "node test-server.js",
-    "dev": "nodemon test-server.js",
-    "test": "node test-server.js"
+    "start": "node test-server.js"
   },
   "keywords": [
     "nursing",
