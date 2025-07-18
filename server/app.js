@@ -3,17 +3,20 @@ const path = require('path');
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 // Redirect non-www to www in production
 app.use((req, res, next) => {
-  const host = req.headers.host;
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isLocalhost = host && (host.startsWith('localhost') || host.startsWith('127.0.0.1'));
+  const host = req.hostname;
+  console.log('Incoming host:', host);
   if (
     isProduction &&
-    !isLocalhost &&
+    host !== 'localhost' &&
+    host !== '127.0.0.1' &&
     host === 'wahegurunursingclasses.com'
   ) {
     const fullUrl = 'https://www.wahegurunursingclasses.com' + req.originalUrl;
+    console.log('Redirecting to www...');
     return res.redirect(301, fullUrl);
   }
   next();
