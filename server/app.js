@@ -3,79 +3,30 @@ const path = require('path');
 
 const app = express();
 
-// Basic middleware
-app.use(express.json());
+// Redirect non-www to www in production
+app.use((req, res, next) => {
+  const host = req.headers.host;
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (isProduction && host === 'wahegurunursingclasses.com') {
+    return res.redirect(301, 'https://www.wahegurunursingclasses.com' + req.originalUrl);
+  }
+  next();
+});
+
+// Serve static files
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    message: 'Server is running successfully',
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// API status
-app.get('/api/status', (req, res) => {
-  res.json({
-    status: 'API is available',
-    timestamp: new Date().toISOString(),
-    message: 'Server is running in static mode'
-  });
-});
-
-// Serve static HTML files
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/home.html'));
-});
-
-app.get('/home', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/home.html'));
-});
-
-app.get('/enroll-now', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/enroll-now.html'));
-});
-
-app.get('/classes', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/classes.html'));
-});
-
-app.get('/gallery', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/gallery.html'));
-});
-
-app.get('/contact', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/contact.html'));
-});
-
-// Simple error handling
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ 
-    error: 'Internal Server Error',
-    message: 'Something went wrong'
-  });
+  res.json({ status: 'OK' });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Route not found',
-    message: `Cannot ${req.method} ${req.originalUrl}`
-  });
+  res.status(404).json({ error: 'Route not found' });
 });
 
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
-
-app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server running on http://${HOST}:${PORT}`);
-  console.log(`📁 Serving static files from: ${path.join(__dirname, '../public')}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`✅ Server started successfully!`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-module.exports = app;
