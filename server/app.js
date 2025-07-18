@@ -34,6 +34,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
+// Fallback route for SPA routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 // Handle unknown routes
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
