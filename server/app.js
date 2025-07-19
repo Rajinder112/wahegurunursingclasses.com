@@ -14,17 +14,23 @@ app.use((req, res, next) => {
   const originalUrl = req.originalUrl;
   const isHttps = req.headers['x-forwarded-proto'] === 'https';
 
-  // Target canonical URL
   const targetHost = 'www.wahegurunursingclasses.com';
   const targetProtocol = 'https://';
 
-  // Check for HTTP or incorrect host
-  if (!isHttps || (host !== targetHost && host !== 'localhost' && process.env.NODE_ENV === 'production')) {
-    // If not HTTPS OR if host is not the target www domain (and not localhost in dev)
-    // AND it's either the bare domain OR the Render subdomain OR any other non-www host
+  // Only perform redirects if the request is already HTTPS and not the target www host
+  if (isHttps && host !== targetHost && host !== 'localhost') {
+    // Redirect bare domain or Render subdomain to www
     if (host === 'wahegurunursingclasses.com' || host === 'wahegurunursingclasses-com.onrender.com') {
       return res.redirect(301, targetProtocol + targetHost + originalUrl);
     }
+  } else if (!isHttps && host === targetHost) {
+      // This case should ideally be handled by Render's automatic HTTPS.
+      // If it's not, you might have to check Render's configuration.
+      // For now, removing the explicit HTTP to HTTPS redirect in your code
+      // and letting Render handle it is usually best.
+      // If you *must* handle it, ensure it doesn't conflict with Render.
+      // For example:
+      // return res.redirect(301, targetProtocol + targetHost + originalUrl);
   }
   next();
 });
