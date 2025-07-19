@@ -1,7 +1,7 @@
 {
   "name": "wahegurunursingclasses",
   "version": "1.0.0",
-  "description": "Express server for static site with HTTPS and domain redirects, and health check.",
+  "description": "Express server for serving a static site with HTTPS and domain redirects, and a health check.",
   "main": "server/app.js",
   "scripts": {
     "start": "node server/app.js"
@@ -12,5 +12,15 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "keywords": [
+    "express",
+    "static",
+    "node.js",
+    "render",
+    "redirects",
+    "health check"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 }
