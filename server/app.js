@@ -7,25 +7,19 @@ const app = express();
 // Middleware: Security headers
 app.use(helmet());
 
-// Redirect HTTP to HTTPS and non-www to www
+// Combined Redirect for HTTP to HTTPS and non-www to www
 app.use((req, res, next) => {
-  const host = req.headers.host;
-  const proto = req.headers['x-forwarded-proto'];
+  const host = req.headers.host; // e.g., 'wahegurunursingclasses.com' or 'www.wahegurunursingclasses.com'
+  const proto = req.headers['x-forwarded-proto']; // e.g., 'http' or 'https'
+
+  const targetProtocol = 'https';
   const targetHost = 'www.wahegurunursingclasses.com';
 
-  // Skip redirect for localhost or development
-  if (host.startsWith('localhost') || process.env.NODE_ENV === 'development') {
-    return next();
-  }
+  const needsRedirect = (proto !== targetProtocol) || (host !== targetHost);
 
-  const needsHttpsRedirect = proto !== 'https';
-  const needsWwwRedirect = host === 'wahegurunursingclasses.com';
-
-  if (needsHttpsRedirect || needsWwwRedirect) {
-    let redirectUrl = 'https://';
-    redirectUrl += needsWwwRedirect ? targetHost : host;
-    redirectUrl += req.originalUrl;
-    return res.redirect(301, redirectUrl);
+  if (needsRedirect) {
+    const redirectUrl = `${targetProtocol}://${targetHost}${req.originalUrl}`;
+    return res.redirect(301, redirectUrl); // Use 301 for permanent redirect
   }
 
   next();
