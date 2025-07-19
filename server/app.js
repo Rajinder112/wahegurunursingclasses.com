@@ -1,6 +1,6 @@
 // server/app.js
 // This file sets up an Express.js server to serve a static website,
-// handle HTTP to HTTPS and non-www to www redirects, and provide a health check endpoint.
+// handle non-www to www redirects, and provide a health check endpoint.
 
 // Import necessary modules
 const express = require('express'); // Express.js for building web applications
@@ -16,43 +16,24 @@ const app = express();
 app.use(helmet());
 
 // --- Redirect Middleware ---
-// This middleware handles two types of redirects:
-// 1. HTTP to HTTPS: Ensures all traffic uses a secure connection.
-// 2. Non-www to www: Ensures a consistent canonical URL (e.g., example.com -> www.example.com).
-// Render (the hosting platform) often handles HTTP to HTTPS automatically,
-// but this provides a robust fallback and handles the www redirection.
+// This middleware handles redirecting non-www to www for consistent canonical URLs.
+// We let Render handle HTTP to HTTPS redirects automatically to avoid conflicts.
 app.use((req, res, next) => {
-  const host = req.hostname; // Get the hostname from the request (e.g., 'wahegurunursingclasses.com', 'www.wahegurunursingclasses.com')
-  const originalUrl = req.originalUrl; // Get the full original URL path (e.g., '/', '/about')
-  // Check if the request is HTTPS. 'x-forwarded-proto' is a common header set by proxies/load balancers (like Render's).
-  const isHttps = req.headers['x-forwarded-proto'] === 'https';
-
+  const host = req.hostname; // Get the hostname from the request
+  const originalUrl = req.originalUrl; // Get the full original URL path
+  
   // Define the target canonical URL for your website
   const targetHost = 'www.wahegurunursingclasses.com';
-  const targetProtocol = 'https://';
-
-  // Condition 1: If the request is NOT HTTPS AND the host is the target www domain.
-  // This handles cases where Render's automatic HTTPS might not have kicked in yet,
-  // or if direct HTTP access somehow bypasses it (less common on Render).
-  // If the request is HTTP and it's already trying to reach the www domain,
-  // we redirect it to HTTPS.
-  if (!isHttps && host === targetHost) {
-    console.log(`Redirecting HTTP to HTTPS for: ${host}${originalUrl}`);
-    return res.redirect(301, targetProtocol + targetHost + originalUrl);
-  }
-
-  // Condition 2: If the request IS HTTPS AND the host is not the target www domain.
-  // This handles redirection from bare domain (wahegurunursingclasses.com) or
-  // Render's default subdomain (wahegurunursingclasses-com.onrender.com) to the www domain.
-  // We only do this if the connection is already secure (HTTPS) to avoid redirect loops
-  // with Render's own HTTPS enforcement.
-  if (isHttps && host !== targetHost && host !== 'localhost') { // 'localhost' is excluded for local development
+  
+  // Only redirect if we're not already on the target www domain and not on localhost
+  if (host !== targetHost && host !== 'localhost') {
+    // Redirect bare domain or Render subdomain to www
     if (host === 'wahegurunursingclasses.com' || host === 'wahegurunursingclasses-com.onrender.com') {
-      console.log(`Redirecting non-www to www for: ${host}${originalUrl}`);
-      return res.redirect(301, targetProtocol + targetHost + originalUrl);
+      console.log(`Redirecting ${host}${originalUrl} to ${targetHost}${originalUrl}`);
+      return res.redirect(301, `https://${targetHost}${originalUrl}`);
     }
   }
-
+  
   // If no redirect is needed, pass the request to the next middleware
   next();
 });
