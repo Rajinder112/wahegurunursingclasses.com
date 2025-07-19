@@ -11,13 +11,21 @@ app.use(helmet());
 app.use((req, res, next) => {
   const host = req.headers.host;
   const proto = req.headers['x-forwarded-proto'];
+  const targetHost = 'www.wahegurunursingclasses.com';
 
-  if (proto !== 'https') {
-    return res.redirect(301, 'https://' + host + req.originalUrl);
+  // Skip redirect for localhost or development
+  if (host.startsWith('localhost') || process.env.NODE_ENV === 'development') {
+    return next();
   }
 
-  if (host === 'wahegurunursingclasses.com') {
-    return res.redirect(301, 'https://www.wahegurunursingclasses.com' + req.originalUrl);
+  const needsHttpsRedirect = proto !== 'https';
+  const needsWwwRedirect = host === 'wahegurunursingclasses.com';
+
+  if (needsHttpsRedirect || needsWwwRedirect) {
+    let redirectUrl = 'https://';
+    redirectUrl += needsWwwRedirect ? targetHost : host;
+    redirectUrl += req.originalUrl;
+    return res.redirect(301, redirectUrl);
   }
 
   next();
