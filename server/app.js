@@ -10,14 +10,15 @@ app.use(helmet());
 // Trust Render proxy for correct HTTPS detection
 app.set('trust proxy', true);
 
-// Redirect all non-HTTPS or non-www traffic to https://www.wahegurunursingclasses.com
 app.use((req, res, next) => {
   const host = req.headers.host;
   const proto = req.protocol;
-  const targetHost = 'www.wahegurunursingclasses.com';
 
-  if (proto !== 'https' || host !== targetHost) {
-    const redirectUrl = `https://${targetHost}${req.originalUrl}`;
+  const isHttps = proto === 'https';
+  const isWww = host === 'www.wahegurunursingclasses.com';
+
+  if (!isHttps || !isWww) {
+    const redirectUrl = `https://www.wahegurunursingclasses.com${req.originalUrl}`;
     return res.redirect(301, redirectUrl);
   }
 
