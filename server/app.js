@@ -20,14 +20,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Redirect Render subdomain and www to bare domain.
+// Redirect bare domain to www.
 app.use((req, res, next) => {
   const host = req.hostname;
   if (
     host === 'wahegurunursingclasses-com.onrender.com' ||
-    host === 'www.wahegurunursingclasses.com'
+    host === 'wahegurunursingclasses.com'
   ) {
-    return res.redirect(301, 'https://wahegurunursingclasses.com' + req.originalUrl);
+    return res.redirect(301, 'https://www.wahegurunursingclasses.com' + req.originalUrl);
   }
   next();
 });
