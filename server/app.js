@@ -8,26 +8,23 @@ const app = express();
 // Set security-related HTTP headers.
 app.use(helmet());
 
-// Redirect HTTP to HTTPS (Render usually handles this, but it's good practice).
-app.use((req, res, next) => {
-  if (
-    process.env.NODE_ENV === 'production' &&
-    req.headers['x-forwarded-proto'] &&
-    req.headers['x-forwarded-proto'] !== 'https'
-  ) {
-    return res.redirect(301, 'https://' + req.hostname + req.originalUrl);
-  }
-  next();
-});
-
-// Redirect bare domain to www.
+// Combined Redirect: HTTP to HTTPS and non-www/Render subdomain to www.wahegurunursingclasses.com
 app.use((req, res, next) => {
   const host = req.hostname;
-  if (
-    host === 'wahegurunursingclasses-com.onrender.com' ||
-    host === 'wahegurunursingclasses.com'
-  ) {
-    return res.redirect(301, 'https://www.wahegurunursingclasses.com' + req.originalUrl);
+  const originalUrl = req.originalUrl;
+  const isHttps = req.headers['x-forwarded-proto'] === 'https';
+
+  // Target canonical URL
+  const targetHost = 'www.wahegurunursingclasses.com';
+  const targetProtocol = 'https://';
+
+  // Check for HTTP or incorrect host
+  if (!isHttps || (host !== targetHost && host !== 'localhost' && process.env.NODE_ENV === 'production')) {
+    // If not HTTPS OR if host is not the target www domain (and not localhost in dev)
+    // AND it's either the bare domain OR the Render subdomain OR any other non-www host
+    if (host === 'wahegurunursingclasses.com' || host === 'wahegurunursingclasses-com.onrender.com') {
+      return res.redirect(301, targetProtocol + targetHost + originalUrl);
+    }
   }
   next();
 });
@@ -49,5 +46,5 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('If deploying to Render, ensure your custom domain is set up: wahegurunursingclasses.com');
+  console.log('Ensure your custom domain is set up to point to Render: wahegurunursingclasses.com and www.wahegurunursingclasses.com');
 }); 
