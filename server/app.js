@@ -4,28 +4,30 @@ const helmet = require('helmet');
 
 const app = express();
 
-// Security headers
-app.use(helmet());
-
-// Trust Render proxy for correct HTTPS detection
+// Trust Render's proxy to get correct protocol
 app.set('trust proxy', true);
 
+// Use Helmet for security headers
+app.use(helmet());
+
+// Universal redirect middleware
 app.use((req, res, next) => {
-  const host = req.headers.host;
+  const host = req.headers.host || '';
   const proto = req.protocol;
+  const targetHost = 'www.wahegurunursingclasses.com';
 
   const isHttps = proto === 'https';
-  const isWww = host === 'www.wahegurunursingclasses.com';
+  const isWww = host.startsWith('www.');
 
   if (!isHttps || !isWww) {
-    const redirectUrl = `https://www.wahegurunursingclasses.com${req.originalUrl}`;
+    const redirectUrl = `https://${targetHost}${req.originalUrl}`;
     return res.redirect(301, redirectUrl);
   }
 
   next();
 });
 
-// Serve static files
+// Serve static files from public directory
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Fallback route
@@ -37,5 +39,5 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
-  console.log(`🌐 App will be accessed via https://www.wahegurunursingclasses.com`);
+  console.log(`🌐 Expected access: https://www.wahegurunursingclasses.com`);
 });
