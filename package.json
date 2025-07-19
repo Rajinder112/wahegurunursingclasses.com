@@ -1,26 +1,12 @@
 {
   "name": "wahegurunursingclasses",
   "version": "1.0.0",
-  "description": "Express server for serving a static site with HTTPS and domain redirects, and a health check.",
   "main": "server/app.js",
   "scripts": {
     "start": "node server/app.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "helmet": "^7.2.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "keywords": [
-    "express",
-    "static",
-    "node.js",
-    "render",
-    "redirects",
-    "health check"
-  ],
-  "author": "Amandeep Singh & Rajinder Singh",
-  "license": "MIT"
+    "express": "^4.18.2",
+    "helmet": "^7.0.0"
+  }
 }
